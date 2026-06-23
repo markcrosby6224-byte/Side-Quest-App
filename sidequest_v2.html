@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SIDEQUEST</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #ffffff12;
+    --text: #f0f0f0;
+    --muted: #6b6b88;
+    --common: #8fb8e8;
+    --rare: #7edba0;
+    --epic: #c97ef7;
+    --legendary: #f7c948;
+    --mythic: #ff6b8a;
+    --bonus: #ff9f43;
+    --xp-color: #ffe566;
+    --lucky: #ff9f43;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 100px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% -10%, #1e1040 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 80%, #0d2818 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .everything { position: relative; z-index: 1; }
+
+  .header { padding: 24px 20px 0; text-align: center; }
+
+  .logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 52px;
+    letter-spacing: 8px;
+    background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .xp-section {
+    margin: 24px 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+  }
+
+  .xp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .xp-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .xp-total {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 32px;
+    color: var(--xp-color);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .xp-total span {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-left: 4px;
+  }
+
+  .level-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .level-badge {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .level-next {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  .xp-bar-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--xp-color), #ffaa00);
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .multiplier-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .multiplier-pip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--legendary);
+    background: #f7c94812;
+    border: 1px solid #f7c94828;
+    border-radius: 99px;
+    padding: 3px 9px;
+    animation: multiplierPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes multiplierPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0px #f7c94800; }
+    50% { opacity: 0.85; box-shadow: 0 0 8px #f7c94830; }
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 10px;
+    margin: 14px 20px 0;
+  }
+
+  .meta-pill {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  .meta-pill-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-pill-val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    line-height: 1;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 24px 20px 12px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--text);
+  }
+
+  .section-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .streak-bonus-banner {
+    margin: 0 20px;
+    background: linear-gradient(135deg, #1a1208, #0f0a02);
+    border: 1px solid #f7c94840;
+    border-radius: 12px;
+    padding: 10px 16px;
+    align-items: center;
+    gap: 10px;
+    display: none;
+  }
+
+  .streak-bonus-banner.show { display: flex; }
+  .streak-bonus-icon { font-size: 18px; }
+
+  .streak-bonus-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--legendary);
+    line-height: 1.5;
+  }
+
+  .streak-bonus-text strong {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .quests-list {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .quest-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .quest-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .quest-card.common::before  { background: var(--common); }
+  .quest-card.rare::before    { background: var(--rare); }
+  .quest-card.epic::before    { background: var(--epic); }
+  .quest-card.legendary::before { background: var(--legendary); }
+  .quest-card.mythic::before  { background: var(--mythic); }
+  .quest-card.bonus::before   { background: var(--bonus); }
+
+  .quest-card.lucky::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, #ff9f4318 50%, transparent 60%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    pointer-events: none;
+    border-radius: 16px;
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .quest-card.lucky {
+    border-color: #ff9f4340;
+    box-shadow: 0 0 12px #ff9f4318;
+  }
+
+  .quest-card.streak-boosted::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, #f7c94818 50%, transparent 60%);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+    pointer-events: none;
+    border-radius: 16px;
+  }
+
+  .quest-card.streak-boosted {
+    border-color: #f7c94835;
+    box-shadow: 0 0 10px #f7c94815;
+  }
+
+  .quest-card.completed { opacity: 0.4; }
+  .quest-card:active { transform: scale(0.97); }
+
+  @keyframes cardFlash {
+    0%   { background: var(--surface); }
+    30%  { background: #2a2a1a; }
+    100% { background: var(--surface); }
+  }
+
+  .quest-card.flash-anim { animation: cardFlash 0.5s ease forwards; }
+
+  .quest-check {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-top: 1px;
+  }
+
+  .quest-card.common .quest-check    { border-color: var(--common); }
+  .quest-card.rare .quest-check      { border-color: var(--rare); }
+  .quest-card.epic .quest-check      { border-color: var(--epic); }
+  .quest-card.legendary .quest-check { border-color: var(--legendary); }
+  .quest-card.mythic .quest-check    { border-color: var(--mythic); }
+  .quest-card.bonus .quest-check     { border-color: var(--bonus); }
+
+  .quest-card.completed .quest-check {
+    background: #2a2a2a;
+    border-color: var(--muted) !important;
+    transform: scale(0.9);
+  }
+
+  .checkmark {
+    opacity: 0;
+    font-size: 13px;
+    transition: all 0.2s;
+    transform: scale(0);
+  }
+
+  .quest-card.completed .checkmark {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .quest-body { flex: 1; min-width: 0; }
+
+  .quest-rarity-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+  }
+
+  .rarity-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 99px;
+    font-weight: 700;
+  }
+
+  .quest-card.common .rarity-tag    { color: var(--common);    background: #8fb8e818; }
+  .quest-card.rare .rarity-tag      { color: var(--rare);      background: #7edba018; }
+  .quest-card.epic .rarity-tag      { color: var(--epic);      background: #c97ef718; }
+  .quest-card.legendary .rarity-tag { color: var(--legendary); background: #f7c94818; }
+  .quest-card.mythic .rarity-tag    { color: var(--mythic);    background: #ff6b8a18; }
+  .quest-card.bonus .rarity-tag     { color: var(--bonus);     background: #ff9f4318; }
+
+  .xp-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--xp-color);
+    margin-left: auto;
+    opacity: 0.85;
+  }
+
+  .lucky-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--lucky);
+    background: #ff9f4318;
+    border: 1px solid #ff9f4335;
+    border-radius: 99px;
+    padding: 1px 6px;
+    animation: luckyPulse 2s infinite;
+  }
+
+  @keyframes luckyPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .streak-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--legendary);
+    background: #f7c94818;
+    border: 1px solid #f7c94835;
+    border-radius: 99px;
+    padding: 1px 6px;
+  }
+
+  .quest-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .bonus-section-header { padding: 20px 20px 12px; }
+
+  .bonus-header-inner {
+    background: linear-gradient(135deg, #1e1610, #0a0a0f);
+    border: 1px solid #f7c94830;
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .bonus-locked-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .bonus-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--legendary);
+  }
+
+  .bonus-lock-icon { font-size: 20px; opacity: 0.5; }
+
+  .completion-banner {
+    margin: 14px 20px 0;
+    background: linear-gradient(135deg, #0f2016, #162010);
+    border: 1px solid #7edba040;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: none;
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .completion-banner.show { display: block; }
+
+  .completion-banner-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: var(--rare);
+    margin-bottom: 4px;
+  }
+
+  .completion-banner-sub { font-size: 13px; color: var(--muted); }
+
+  /* LEVEL UP OVERLAY */
+  .levelup-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000cc;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .levelup-overlay.show { opacity: 1; pointer-events: all; }
+
+  .levelup-box {
+    background: var(--surface);
+    border: 1px solid var(--legendary);
+    border-radius: 24px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 0 60px #f7c94830;
+    animation: levelupPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 300px;
+    width: 90%;
+  }
+
+  @keyframes levelupPop {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .levelup-stars { font-size: 32px; margin-bottom: 12px; letter-spacing: 6px; }
+
+  .levelup-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .levelup-level {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 64px;
+    color: var(--legendary);
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .levelup-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--text);
+    margin-top: 4px;
+  }
+
+  .levelup-btn {
+    margin-top: 24px;
+    background: var(--legendary);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* LUCKY REVEAL */
+  .lucky-reveal {
+    position: fixed;
+    inset: 0;
+    background: #000000cc;
+    z-index: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .lucky-reveal.show { opacity: 1; pointer-events: all; }
+
+  .lucky-reveal-box {
+    background: linear-gradient(135deg, #1a1008, #0a0a0f);
+    border: 1px solid var(--lucky);
+    border-radius: 24px;
+    padding: 36px 28px;
+    text-align: center;
+    box-shadow: 0 0 50px #ff9f4330;
+    animation: levelupPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 300px;
+    width: 90%;
+  }
+
+  .lucky-reveal-icon { font-size: 40px; margin-bottom: 12px; }
+
+  .lucky-reveal-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .lucky-reveal-xp {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 56px;
+    color: var(--lucky);
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+
+  .lucky-reveal-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+  .lucky-reveal-btn {
+    margin-top: 20px;
+    background: var(--lucky);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* BADGE OVERLAY */
+  .badge-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000dd;
+    z-index: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+
+  .badge-overlay.show { opacity: 1; pointer-events: all; }
+
+  .badge-box {
+    background: var(--surface);
+    border: 1px solid var(--epic);
+    border-radius: 24px;
+    padding: 40px 32px;
+    text-align: center;
+    max-width: 300px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 60px #c97ef730;
+    animation: badgePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .badge-box.secret {
+    border-color: var(--mythic);
+    box-shadow: 0 0 60px #ff6b8a30;
+  }
+
+  @keyframes badgePop {
+    from { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+    60%  { transform: scale(1.06) rotate(2deg); opacity: 1; }
+    to   { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .badge-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 30%, #c97ef710 50%, transparent 70%);
+    background-size: 300% 100%;
+    animation: badgeShimmer 2s infinite;
+    pointer-events: none;
+  }
+
+  .badge-box.secret::before {
+    background: linear-gradient(105deg, transparent 30%, #ff6b8a10 50%, transparent 70%);
+    background-size: 300% 100%;
+  }
+
+  @keyframes badgeShimmer {
+    0%   { background-position: 300% 0; }
+    100% { background-position: -300% 0; }
+  }
+
+  .badge-unlock-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--epic);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .badge-box.secret .badge-unlock-label { color: var(--mythic); }
+
+  .badge-icon-big {
+    font-size: 56px;
+    margin-bottom: 12px;
+    display: block;
+    animation: badgeIconBounce 0.6s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes badgeIconBounce {
+    from { transform: scale(0) rotate(-20deg); }
+    to   { transform: scale(1) rotate(0deg); }
+  }
+
+  .badge-name-big {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 30px;
+    letter-spacing: 3px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .badge-desc-big {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .badge-ok-btn {
+    background: var(--epic);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .badge-queue-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* BADGES PAGE */
+  .badges-grid {
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .badge-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 14px;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .badge-card.earned {
+    border-color: #c97ef740;
+    background: linear-gradient(135deg, #1a0e2a, #12121a);
+  }
+
+  .badge-card.earned-secret {
+    border-color: #ff6b8a40;
+    background: linear-gradient(135deg, #1a0a0f, #12121a);
+  }
+
+  .badge-card.locked { opacity: 0.4; }
+
+  .badge-card-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .badge-card-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .badge-card-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .badge-card.locked .badge-card-name { color: var(--muted); }
+
+  .badge-secret-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--mythic);
+    opacity: 0.5;
+  }
+
+  .badge-category-header {
+    padding: 20px 20px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .badge-earned-check {
+    position: absolute;
+    top: 8px; right: 8px;
+    font-size: 10px;
+    color: var(--epic);
+  }
+
+  .badge-card.earned-secret .badge-earned-check { color: var(--mythic); }
+
+  /* XP POPUP */
+  .xp-popup {
+    position: fixed;
+    pointer-events: none;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--xp-color);
+    text-shadow: 0 0 20px #ffe56680;
+    z-index: 1000;
+    opacity: 0;
+  }
+
+  .xp-popup.animate {
+    animation: xpFloat 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes xpFloat {
+    0%   { opacity: 1; transform: translateY(0) scale(0.8); }
+    30%  { opacity: 1; transform: translateY(-30px) scale(1.15); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.9); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .timer-bar {
+    margin: 16px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .timer-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .timer-track {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--epic), var(--mythic));
+    border-radius: 99px;
+  }
+
+  .timer-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 12px 20px 28px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .nav-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 6px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-btn.active {
+    background: var(--surface2);
+    border-color: #ffffff25;
+    color: var(--text);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .history-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+
+  .history-day {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .history-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .history-day-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .history-day-xp {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--xp-color);
+  }
+
+  .history-quest-item {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .history-quest-item:last-child { border-bottom: none; }
+
+  .history-quest-rarity {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 16px;
+  }
+
+  .stat-card.full-width { grid-column: span 2; }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 36px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .rarity-breakdown { display: flex; flex-direction: column; gap: 8px; }
+  .rarity-row-stat { display: flex; align-items: center; gap: 10px; }
+
+  .rarity-row-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    width: 70px;
+    text-transform: uppercase;
+  }
+
+  .rarity-bar-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .rarity-bar-fill { height: 100%; border-radius: 99px; }
+
+  .rarity-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    width: 20px;
+    text-align: right;
+  }
+
+  .reset-btn {
+    margin: 20px;
+    background: transparent;
+    border: 1px solid #ff4444;
+    border-radius: 12px;
+    padding: 14px;
+    color: #ff4444;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: calc(100% - 40px);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    line-height: 2;
+  }
+</style>
+</head>
+<body>
+<div class="everything">
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="header">
+      <div class="logo">SIDEQUEST</div>
+      <div class="logo-sub">Daily Challenges</div>
+    </div>
+
+    <div class="xp-section">
+      <div class="xp-row">
+        <div class="xp-label">Total XP</div>
+        <div class="xp-total" id="xp-display">0 <span>XP</span></div>
+      </div>
+      <div class="level-row">
+        <div class="level-badge" id="level-display">LEVEL 1</div>
+        <div class="level-next" id="level-next"></div>
+      </div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="xp-bar" style="width:0%"></div>
+      </div>
+      <div class="multiplier-row" id="multiplier-row" style="display:none">
+        <div class="multiplier-pip" id="multiplier-pip">🔥 1.0× STREAK MULTIPLIER</div>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-pill">
+        <div class="meta-pill-label">Today</div>
+        <div class="meta-pill-val" id="date-display">—</div>
+      </div>
+      <div class="meta-pill">
+        <div class="meta-pill-label">Streak</div>
+        <div class="meta-pill-val" id="streak-display" style="color:var(--legendary)">—</div>
+      </div>
+      <div class="meta-pill">
+        <div class="meta-pill-label">Done</div>
+        <div class="meta-pill-val" id="done-display">0/7</div>
+      </div>
+    </div>
+
+    <div class="timer-bar">
+      <div class="timer-label">Resets In</div>
+      <div class="timer-track">
+        <div class="timer-fill" id="timer-fill" style="width:100%"></div>
+      </div>
+      <div class="timer-time" id="timer-display">—</div>
+    </div>
+
+    <div class="streak-bonus-banner" id="streak-bonus-banner" style="margin-top:14px">
+      <div class="streak-bonus-icon">🔥</div>
+      <div class="streak-bonus-text">
+        <strong id="streak-bonus-title">STREAK BONUS ACTIVE</strong>
+        <span id="streak-bonus-sub">Multiplier applied to all XP earned today</span>
+      </div>
+    </div>
+
+    <div class="completion-banner" id="completion-banner">
+      <div class="completion-banner-title">🎉 All Quests Done!</div>
+      <div class="completion-banner-sub">Bonus quest unlocked — 2× XP incoming</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Today's Quests</div>
+      <div class="section-count" id="quests-count">0 / 7</div>
+    </div>
+    <div class="quests-list" id="quests-list"></div>
+
+    <div class="bonus-section-header">
+      <div class="bonus-header-inner" id="bonus-header">
+        <div>
+          <div class="bonus-locked-text" id="bonus-locked-label">Complete all 7 to unlock</div>
+          <div class="bonus-title">2× BONUS QUEST</div>
+        </div>
+        <div class="bonus-lock-icon" id="bonus-icon">🔒</div>
+      </div>
+    </div>
+    <div class="quests-list" id="bonus-list" style="display:none;flex-direction:column"></div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div class="page" id="page-history">
+    <div class="header">
+      <div class="logo" style="font-size:38px;letter-spacing:5px">LOGBOOK</div>
+      <div class="logo-sub">Quest History</div>
+    </div>
+    <div class="section-header">
+      <div class="section-title">Past Days</div>
+    </div>
+    <div class="history-list" id="history-list"></div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- STATS PAGE -->
+  <div class="page" id="page-stats">
+    <div class="header">
+      <div class="logo" style="font-size:38px;letter-spacing:5px">STATS</div>
+      <div class="logo-sub">Your Record</div>
+    </div>
+    <div class="section-header" style="padding-bottom:16px">
+      <div class="section-title">Overview</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total XP</div>
+        <div class="stat-value" id="stat-xp" style="color:var(--xp-color)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Level</div>
+        <div class="stat-value" id="stat-level">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Best Streak</div>
+        <div class="stat-value" id="stat-streak" style="color:var(--legendary)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days Played</div>
+        <div class="stat-value" id="stat-days">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Quests Done</div>
+        <div class="stat-value" id="stat-total" style="color:var(--rare)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Perfect Days</div>
+        <div class="stat-value" id="stat-perfect" style="color:var(--epic)">0</div>
+      </div>
+      <div class="stat-card full-width">
+        <div class="stat-label">Quests by Rarity</div>
+        <div class="rarity-breakdown" id="rarity-breakdown"></div>
+      </div>
+    </div>
+    <button class="reset-btn" id="reset-btn">Reset All Data</button>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- BADGES PAGE -->
+  <div class="page" id="page-badges">
+    <div class="header">
+      <div class="logo" style="font-size:38px;letter-spacing:5px">BADGES</div>
+      <div class="logo-sub" id="badge-count-sub">0 earned</div>
+    </div>
+    <div id="badges-content"></div>
+    <div style="height:20px"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="showPage('home')">⚔ Quests</button>
+  <button class="nav-btn" id="nav-history" onclick="showPage('history')">📜 Log</button>
+  <button class="nav-btn" id="nav-stats" onclick="showPage('stats')">📊 Stats</button>
+  <button class="nav-btn" id="nav-badges" onclick="showPage('badges')">🏅 Badges</button>
+</div>
+
+<!-- XP POPUP -->
+<div class="xp-popup" id="xp-popup"></div>
+
+<!-- LEVEL UP OVERLAY -->
+<div class="levelup-overlay" id="levelup-overlay" onclick="closeLevelUp()">
+  <div class="levelup-box" onclick="event.stopPropagation()">
+    <div class="levelup-stars">⭐ ⭐ ⭐</div>
+    <div class="levelup-label">Level Up!</div>
+    <div class="levelup-level" id="levelup-num">2</div>
+    <div class="levelup-title" id="levelup-title">SCOUT</div>
+    <button class="levelup-btn" onclick="closeLevelUp()">LET'S GO</button>
+  </div>
+</div>
+
+<!-- LUCKY REVEAL OVERLAY -->
+<div class="lucky-reveal" id="lucky-reveal" onclick="closeLuckyReveal()">
+  <div class="lucky-reveal-box" onclick="event.stopPropagation()">
+    <div class="lucky-reveal-icon">🍀</div>
+    <div class="lucky-reveal-label">Lucky Quest!</div>
+    <div class="lucky-reveal-xp" id="lucky-reveal-xp">+200 XP</div>
+    <div class="lucky-reveal-sub">2× XP modifier revealed</div>
+    <button class="lucky-reveal-btn" onclick="closeLuckyReveal()">NICE</button>
+  </div>
+</div>
+
+<!-- BADGE UNLOCK OVERLAY -->
+<div class="badge-overlay" id="badge-overlay" onclick="advanceBadgeQueue()">
+  <div class="badge-box" id="badge-box" onclick="event.stopPropagation()">
+    <div class="badge-unlock-label" id="badge-unlock-label">Badge Unlocked!</div>
+    <span class="badge-icon-big" id="badge-icon-big">🏅</span>
+    <div class="badge-name-big" id="badge-name-big">Badge Name</div>
+    <div class="badge-desc-big" id="badge-desc-big">Description here</div>
+    <div class="badge-queue-count" id="badge-queue-count" style="display:none"></div>
+    <button class="badge-ok-btn" id="badge-ok-btn" onclick="advanceBadgeQueue()">AWESOME</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// QUEST BANK
+// ============================================================
+const QUEST_BANK = {
+  common: [
+    {text:"Touch grass (literally)", xp:5},
+    {text:"Eat something with ketchup that shouldn't have ketchup on it", xp:8},
+    {text:"Sit in the backyard and do nothing for 10 minutes", xp:5},
+    {text:"Count all the chairs in your house", xp:5},
+    {text:"Find something in your fridge with the closest expiration date", xp:7},
+    {text:"Stare at the ceiling for 5 minutes and see where your brain goes", xp:7},
+    {text:"See how long you can hold your breath", xp:7},
+    {text:"Stack something as high as you can before it falls", xp:8},
+    {text:"Organize one drawer", xp:10},
+    {text:"Find something you forgot you owned", xp:8},
+    {text:"Find the oldest thing in your house", xp:8},
+    {text:"Find something in your house that has no business still being there", xp:8},
+    {text:"Find a photo of yourself from elementary school", xp:8},
+    {text:"Find something you made as a kid (drawing, project, anything)", xp:10},
+    {text:"Look through old texts or messages from years ago", xp:10},
+    {text:"Go through your camera roll and delete 50 photos you don't need", xp:12},
+    {text:"Clean out your backpack or bag completely", xp:12},
+    {text:"Change your phone wallpaper to something actually good", xp:6},
+    {text:"Change your ringtone to something funny", xp:7},
+    {text:"Find a book you own but have never read and read the first chapter", xp:15},
+    {text:"Put hot sauce on something you normally wouldn't", xp:8},
+    {text:"Try a food combination you've never attempted", xp:10},
+    {text:"Eat a piece of fruit you don't usually eat", xp:7},
+    {text:"Try a soda you've never had before", xp:8},
+    {text:"Listen to a full album start to finish", xp:14},
+    {text:"Find a podcast and listen to at least 20 minutes", xp:12},
+    {text:"Watch a random documentary you'd never normally pick", xp:18},
+    {text:"Find a subreddit you've never heard of and scroll it for 10 minutes", xp:8},
+    {text:"Look up something you've always wondered about", xp:7},
+    {text:"Look up the Wikipedia page for something random and go down the rabbit hole", xp:10},
+    {text:"Find the weirdest Wikipedia article you can", xp:10},
+    {text:"Find out what was happening in the world on the day you were born", xp:12},
+    {text:"Look up what your name means", xp:7},
+    {text:"Look up how something in your house actually works", xp:10},
+    {text:"Watch a 'how it's made' video about something you use every day", xp:8},
+    {text:"Learn one new fact and tell someone", xp:12},
+    {text:"Draw something, anything, in under 5 minutes", xp:8},
+    {text:"Doodle something on a sticky note and leave it somewhere in your house", xp:8},
+    {text:"Write a 6 word story about your day", xp:8},
+    {text:"Write the opening line of a book you'll never write", xp:10},
+    {text:"Come up with a band name and a fake album title", xp:8},
+    {text:"Invent a new holiday and explain what people do to celebrate it", xp:12},
+    {text:"Rewrite the chorus of a song you like with completely different words", xp:14},
+    {text:"Write a one sentence review of every meal you eat today", xp:10},
+    {text:"Try to write with your non-dominant hand for 5 minutes", xp:8},
+    {text:"Try to name every US state from memory", xp:12},
+    {text:"Find the longest word you know how to spell and write it out", xp:8},
+    {text:"Learn how to say something in a language you don't speak", xp:10},
+    {text:"Try to solve a Rubik's cube (attempt counts)", xp:10},
+    {text:"Take a photo you're actually proud of", xp:10},
+    {text:"Find a fence, wall, or ledge to sit on", xp:7},
+    {text:"Walk somewhere barefoot", xp:7},
+    {text:"Walk backwards for an entire block", xp:12},
+    {text:"Figure out how many steps it takes to walk around your block", xp:8},
+    {text:"Spot 5 different animals outside (bugs count)", xp:10},
+    {text:"Rearrange your furniture slightly and see if anyone notices", xp:10},
+    {text:"Find a tutorial on YouTube and actually follow it", xp:14},
+    {text:"Learn how to do something on YouTube that takes under 10 minutes", xp:12},
+    {text:"Practice something you used to be good at", xp:14},
+    {text:"Build something out of whatever materials you have available", xp:18},
+    {text:"Fix something in your house that's been broken or annoying for a while", xp:25},
+    {text:"Find a recipe online and make it with whatever you have", xp:22},
+    {text:"Find a song you've never heard before and add it to a playlist", xp:8},
+    {text:"Sit in a chair backwards for an entire meal", xp:8},
+    {text:"Talk in third person for 30 minutes", xp:14},
+    {text:"Refer to your house as 'the estate' for the rest of the day", xp:10},
+    {text:"Wear something in your closet you haven't touched in 6 months", xp:8},
+    {text:"Send a voice memo to someone saying absolutely nothing for 30 seconds", xp:8},
+    {text:"Tell a family member about your day unprompted", xp:8},
+    {text:"Text someone a genuine compliment out of nowhere", xp:10},
+    {text:"Send a voice message instead of a text today", xp:8},
+    {text:"Send a meme to someone who will actually find it funny", xp:7},
+    {text:"Text someone you haven't talked to in over a month", xp:12},
+    {text:"Send your parents or siblings a meme they'll actually get", xp:8},
+    {text:"Check in on a friend you haven't seen in person in a while", xp:12},
+    {text:"Tell someone in your house goodnight before you go to sleep", xp:6},
+    {text:"Hold the door open for someone", xp:5},
+    {text:"Say thank you to someone who doesn't expect it", xp:7},
+    {text:"Tell someone a joke (has to land at least a little)", xp:10},
+    {text:"Look up a card trick and attempt it on someone", xp:12},
+    {text:"Find somewhere new to sit and eat lunch", xp:8},
+    {text:"Text someone using only voice-to-text all day", xp:15},
+    {text:"Text a random number and see if they answer", xp:18},
+    {text:"Call someone and immediately hang up when they answer", xp:7},
+  ],
+  rare: [
+    {text:"Walk to the nearest gas station and back", xp:35},
+    {text:"Walk at least 8,000 steps in a day", xp:50},
+    {text:"Spend 3 hours outside in one continuous stretch", xp:65, outsideHours:3},
+    {text:"Do something active for at least an hour total today", xp:50},
+    {text:"Find a trail near your neighborhood you've never been on", xp:45, outsideHours:1},
+    {text:"Find a field and just run across it", xp:35, outsideHours:0.25},
+    {text:"Skip rocks at any body of water", xp:38, outsideHours:0.5},
+    {text:"Find something to climb and climb it", xp:45, outsideHours:0.25},
+    {text:"Find something to jump over", xp:35},
+    {text:"Find a basketball hoop and make 10 shots", xp:40, outsideHours:0.5},
+    {text:"Find a shortcut between two places you normally drive", xp:40},
+    {text:"Walk until you find something worth taking a photo of", xp:38, outsideHours:0.5},
+    {text:"Find the most decorated house in a 1 mile radius", xp:38, outsideHours:0.5},
+    {text:"Walk past a house with a 'beware of dog' sign and look for the dog", xp:35, outsideHours:0.25},
+    {text:"Find a neighborhood you'd want to live in and walk around in it", xp:40, outsideHours:1},
+    {text:"Find any public art near you (mural, statue, anything) and actually look at it", xp:40, outsideHours:0.5},
+    {text:"Go somewhere with an interesting name near you and actually check it out", xp:45, outsideHours:0.5},
+    {text:"Go somewhere you've only ever driven past and actually stop there", xp:45},
+    {text:"Go somewhere alone that you'd normally only go with friends", xp:55},
+    {text:"Do something today that you've been saying you'd do all summer", xp:65},
+    {text:"Stay off social media from noon to midnight", xp:65},
+    {text:"Go an entire outing without using your phone once", xp:60},
+    {text:"Find the most generic suburban thing possible and photograph it", xp:35, outsideHours:0.5},
+    {text:"Walk through a neighborhood and rank every house's lawn out of 10", xp:40, outsideHours:0.5},
+    {text:"Go to a place that has really strong reviews and see if it's worth it", xp:50},
+    {text:"Go to any public place and read a book there for 20 minutes", xp:40, outsideHours:0.5},
+    {text:"Go somewhere public and read a newspaper (physical) with complete seriousness", xp:50, social:true},
+    {text:"Go to a park and sit on the swings for at least 10 minutes", xp:38, outsideHours:0.5},
+    {text:"Find a random driveway basketball hoop and ask to shoot around", xp:55, social:true},
+    {text:"Ring a neighbor's doorbell and ask for a cup of water", xp:50, social:true},
+    {text:"Wave at someone mowing their lawn", xp:35, social:true},
+    {text:"Ask someone what time it is even though you have a phone", xp:35, social:true},
+    {text:"Give a thumbs up to someone driving past", xp:35, social:true},
+    {text:"Wave at someone you don't know and see if they wave back", xp:38, social:true},
+    {text:"Compliment a stranger's shoes", xp:38, social:true},
+    {text:"Compliment a stranger's car", xp:38, social:true},
+    {text:"Tell a stranger you like their dog and ask its name", xp:40, social:true},
+    {text:"Say 'have a great day' to the next cashier you encounter and mean it", xp:35, social:true},
+    {text:"Ask someone how their day is and actually listen to the answer", xp:40, social:true},
+    {text:"Ask someone waiting in line near you how their day is going", xp:45, social:true},
+    {text:"Ask someone for a recommendation (restaurant, store, anything)", xp:45, social:true},
+    {text:"Compliment something specific about a stranger (not just appearance)", xp:45, social:true},
+    {text:"Start a conversation with someone sitting alone somewhere public", xp:55, social:true},
+    {text:"Start a conversation with someone who's clearly waiting for something", xp:50, social:true},
+    {text:"Ask someone what they're reading, watching, or listening to lately", xp:45, social:true},
+    {text:"Tell a cashier you like their name (if you can see it on a name tag)", xp:38, social:true},
+    {text:"Ask someone older than 50 for life advice", xp:55, social:true},
+    {text:"Ask a random adult what they wish they knew at your age", xp:55, social:true},
+    {text:"Ask someone you barely know a genuine question about their life", xp:50, social:true},
+    {text:"Ask a librarian to recommend a book without telling them what you like", xp:50, social:true},
+    {text:"Pet someone else's dog", xp:35, social:true},
+    {text:"Visit a store you've driven past a hundred times but never been inside", xp:38},
+    {text:"Walk into a store, browse seriously, and leave without buying anything", xp:35},
+    {text:"Walk into a store way out of your price range and browse like you belong there", xp:55},
+    {text:"Go to a hardware store and ask someone to explain something to you", xp:40, social:true},
+    {text:"Ask a grocery store employee where something extremely obvious is with complete sincerity", xp:45, social:true},
+    {text:"Walk into a gas station and ask for directions somewhere nearby", xp:38, social:true},
+    {text:"Call a local business and ask a question you already know the answer to", xp:40, social:true},
+    {text:"Ask for a cup of water at a restaurant and drink it like it's the finest beverage you've ever had", xp:45, social:true},
+    {text:"Go to a coffee shop and order something you can't pronounce", xp:40, social:true},
+    {text:"Ask if a fast food place has a 'chef's recommendation'", xp:42, social:true, chaos:true},
+    {text:"Order something and ask them to surprise you with the sauce", xp:40, social:true},
+    {text:"Ask for extra napkins at a fast food place — like an unreasonable amount", xp:38, social:true, chaos:true},
+    {text:"Order something at a drive-thru in a different voice", xp:45, chaos:true},
+    {text:"Walk into a fast food place and ask to use the bathroom and nothing else", xp:35},
+    {text:"Try the weirdest flavor of a drink at a gas station", xp:38},
+    {text:"Try a flavor of something (chips, ice cream, drink) that sounds genuinely bad", xp:38},
+    {text:"Ask a gas station employee what their favorite snack in the store is and buy it", xp:40, social:true},
+    {text:"Ask a store employee what the most underrated thing they sell is", xp:42, social:true},
+    {text:"Order the most random item on the menu at a place you've never tried", xp:42},
+    {text:"Ask a fast food worker what their favorite thing on the menu is and order exactly that", xp:42, social:true},
+    {text:"Order something off the secret menu at any chain", xp:50},
+    {text:"Go to a fast food place right before they close and see what they have left", xp:40},
+    {text:"Take a photo with a random shopping cart", xp:35},
+    {text:"Greet the next person you see with unusual enthusiasm", xp:40, social:true},
+    {text:"Challenge a friend to a race, game, or competition out of nowhere", xp:42},
+    {text:"Plan something with a friend using only in-person communication, no texting", xp:50},
+    {text:"Get someone to join you for a walk who normally wouldn't", xp:50, outsideHours:0.5},
+    {text:"Get a friend to try a food they claim to hate", xp:50},
+    {text:"Get a friend to do a quest with you without telling them it's a quest", xp:50},
+    {text:"Drag a friend somewhere neither of you have been before", xp:55},
+    {text:"Get a friend to try something they'd normally say no to", xp:55},
+    {text:"Convince someone to go on a spontaneous drive with you", xp:55},
+    {text:"Get a sibling or parent to go on a walk with you", xp:45, outsideHours:0.5},
+    {text:"Convince someone to come outside who's been inside all day", xp:50},
+    {text:"Get a friend to try something off their comfort zone (food, activity, anything)", xp:55},
+    {text:"Get two friends who don't know each other that well to hang out", xp:60},
+    {text:"Convince someone to stay out an hour later than they planned", xp:60},
+    {text:"Get a friend to put their phone away for an entire hangout", xp:60},
+    {text:"Do something with a friend you've never done together before", xp:60},
+    {text:"Plan something spontaneous with a friend and execute it same day", xp:65},
+    {text:"Go to a place you've never eaten before and order without looking at the menu for more than 30 seconds", xp:50},
+    {text:"Go somewhere public and sit on the floor reading a book where you usually wouldn't", xp:50},
+    {text:"Make something you can give to another person", xp:60},
+    {text:"Do an entire errand in slow motion", xp:55, chaos:true},
+    {text:"Walk around a store and quietly give everything a different name than what it actually is", xp:50},
+    {text:"Refer to yourself in third person for an entire hangout with friends", xp:55},
+    {text:"Walk around your neighborhood with a measuring tape and occasionally measure random things", xp:50, outsideHours:0.5},
+    {text:"Go an entire day only speaking when spoken to and see how long it takes someone to notice", xp:75},
+    {text:"Go an entire outing without using your name once — make up a new one and commit to it", xp:65},
+    {text:"Go an entire day treating every single person you interact with like they're the most interesting person you've ever met", xp:75, social:true},
+    {text:"Get somewhere entirely on foot that you'd normally only go to by car (has to be decently far)", xp:70, outsideHours:1},
+    {text:"Find a stick and carry it for an hour", xp:35, outsideHours:0.5},
+  ],
+  epic: [
+    {text:"Walk into a public place and narrate everything you're doing out loud like a nature documentary", xp:95, chaos:true},
+    {text:"Sit in a food court and eat your meal with complete formal dining etiquette (napkin on lap, tiny bites, etc.)", xp:90, chaos:true},
+    {text:"Walk through a store having a full and dramatic phone call that isn't real", xp:90, chaos:true},
+    {text:"Go to a public place and stand absolutely still for 20 minutes while everyone around you is busy", xp:100, chaos:true},
+    {text:"Walk into a fast food place, look at the menu for 5 full minutes, and order a water", xp:88, chaos:true},
+    {text:"Sit at a park bench and feed birds/squirrels like a mysterious old man regardless of your age", xp:85, outsideHours:0.5},
+    {text:"Walk through a mall with a clipboard and act like you're doing official research", xp:90, clipboard:true, chaos:true},
+    {text:"Walk around a store with items in your arms like you work there", xp:88, chaos:true},
+    {text:"Sit in the most visible spot at a fast food place and eat a home packed lunch you brought yourself", xp:90, chaos:true},
+    {text:"Speak in a British accent to every single person you interact with for a full outing", xp:100, social:true, chaos:true},
+    {text:"Go somewhere public and pretend you've never seen modern technology before", xp:100, chaos:true},
+    {text:"Wear a full suit or formal outfit somewhere completely casual (McDonald's, a park, a convenience store)", xp:95, chaos:true},
+    {text:"Walk through a store and quietly hum elevator music the entire time", xp:88, chaos:true},
+    {text:"Pull up to a drive-thru on a bike and order a full meal", xp:100, chaos:true},
+    {text:"Walk through a grocery store with a ridiculously long list written on actual paper", xp:85},
+    {text:"Walk into a store, look around, say 'just as I suspected' quietly to yourself, and leave", xp:85, chaos:true},
+    {text:"Ask a store employee for their 'honest opinion' on something completely mundane", xp:88, social:true, chaos:true},
+    {text:"Pull up to a drive-thru and order with complete formality like you're at a Michelin star restaurant", xp:95, chaos:true},
+    {text:"Go through a drive-thru and give your name as something extremely long and difficult to spell", xp:90, chaos:true},
+    {text:"Ask the drive-thru if they have a tasting menu", xp:90, chaos:true},
+    {text:"Order something at a drive-thru and when they read it back to you, say 'hmm, I'm not sure that's right' even though it is", xp:92, chaos:true},
+    {text:"Ask a drive-thru worker how the soup is today (regardless of whether they have soup)", xp:90, chaos:true},
+    {text:"Go through a drive-thru and when they ask 'is that everything?' pause for 15 full seconds before saying yes loudly", xp:92, chaos:true},
+    {text:"Ask the drive-thru window person for a table by the window", xp:92, chaos:true},
+    {text:"Go through a drive-thru on foot", xp:95, chaos:true},
+    {text:"Call a movie theater and ask them to describe the plot of a movie currently showing", xp:88, chaos:true},
+    {text:"Call a restaurant and ask if the food is good", xp:85, chaos:true},
+    {text:"Call any local business and ask 'is this the place?' when they answer", xp:85, chaos:true},
+    {text:"Call a store and ask if they're busy right now", xp:85, chaos:true},
+    {text:"Call a hotel and ask about the 'vibe of the rooms'", xp:88, chaos:true},
+    {text:"Call any business right before close and ask what time they close", xp:85, chaos:true},
+    {text:"Call a restaurant and ask if they've ever heard of a dish you just made up", xp:90, chaos:true},
+    {text:"Tell a stranger you're 'glad they could make it' like you've been expecting them", xp:92, social:true, chaos:true},
+    {text:"Walk past someone and say 'you're late' without breaking stride", xp:88, social:true, chaos:true},
+    {text:"Ask a stranger if they've 'seen the others'", xp:90, social:true, chaos:true},
+    {text:"Walk up to someone sitting alone and say 'I thought I'd find you here'", xp:90, social:true, chaos:true},
+    {text:"Tell a stranger 'don't worry, I took care of it' and keep walking", xp:88, social:true, chaos:true},
+    {text:"Ask a stranger if they want to hear some news and when they say yes just tell them the weather", xp:92, social:true, chaos:true},
+    {text:"Walk past someone and whisper 'the package has been delivered' and keep walking", xp:90, social:true, chaos:true},
+    {text:"Tell a stranger you 'haven't seen them since the incident' and refuse to elaborate", xp:95, social:true, chaos:true},
+    {text:"Ask a stranger if they've 'made a decision yet' and nod seriously at whatever they say", xp:92, social:true, chaos:true},
+    {text:"Wear a lab coat somewhere public and act completely normal", xp:100, chaos:true},
+    {text:"Wear a name tag somewhere public with a diabolical fake name and a fake title", xp:95, clipboard:true, chaos:true},
+    {text:"Wear a hard hat somewhere it is absolutely not needed", xp:95, chaos:true},
+    {text:"Wear a lanyard with a fake badge somewhere public", xp:92, clipboard:true, chaos:true},
+    {text:"Carry a binder full of blank paper somewhere and occasionally reference it seriously", xp:90, clipboard:true, chaos:true},
+    {text:"Show up somewhere with a walkie talkie and occasionally use it", xp:95, chaos:true},
+    {text:"Carry an umbrella on a perfectly clear day and refuse to explain it", xp:88, chaos:true},
+    {text:"Set up a small table and chair in your front yard and sit out there like it's a normal office", xp:100, chaos:true, outsideHours:1},
+    {text:"Walk around your block with a clipboard and act like you're conducting a survey", xp:92, clipboard:true, chaos:true, outsideHours:0.5},
+    {text:"Stand at the end of your driveway and wave at every single car that drives past", xp:95, social:true, chaos:true, outsideHours:0.5},
+    {text:"Put up a small completely useless sign in your yard ('Caution: yard' etc.)", xp:90, chaos:true},
+    {text:"Sit on a roof (safely) and just exist up there for a while", xp:88, outsideHours:0.5},
+    {text:"Knock on a neighbor's door and ask if they've seen your totally fictional dog", xp:100, social:true, chaos:true},
+    {text:"Walk through your neighborhood carrying a houseplant like it's extremely precious cargo", xp:95, chaos:true, outsideHours:0.5},
+    {text:"Go to a grocery store and ask an employee where the 'vibe' is", xp:88, social:true, chaos:true},
+    {text:"Walk into a store and ask if they have anything 'for a guy who has everything'", xp:88, social:true, chaos:true},
+    {text:"Go to a pet store and ask if any of the fish are 'good with kids'", xp:90, social:true, chaos:true},
+    {text:"Walk into a store and ask for a gift recommendation for someone you describe so vaguely it's useless", xp:90, social:true, chaos:true},
+    {text:"Go to a hardware store and ask someone to help you find something you describe only as 'the thing that goes on the other thing'", xp:90, social:true, chaos:true},
+    {text:"Ask a Walmart employee to help you 'find something special' with no further context", xp:88, social:true, chaos:true},
+    {text:"Walk into a fast food place and ask to speak to the manager to compliment the fries", xp:92, social:true, chaos:true},
+    {text:"Ask a stranger if they want to hear a joke and actually tell one", xp:88, social:true},
+    {text:"Ask someone you don't know to teach you something they know how to do", xp:100, social:true},
+    {text:"Ask someone at a park if you can join whatever they're doing", xp:105, social:true, outsideHours:1},
+    {text:"Get a stranger to take a photo with you like you're old friends", xp:100, social:true},
+    {text:"Ask a stranger to recommend their favorite food place and then go there", xp:100, social:true},
+    {text:"Cook a full meal entirely from scratch with no shortcuts", xp:105},
+    {text:"Deep clean your room completely — not just surface clean", xp:105},
+    {text:"Learn a skill on YouTube and practice it for at least an hour", xp:105},
+    {text:"Draw or create something you'd actually want to keep", xp:100},
+    {text:"Teach yourself the first minute of a song on any instrument", xp:110},
+    {text:"Go to a part of your city you've genuinely never been to and spend at least an hour there", xp:100, outsideHours:1},
+    {text:"Find a hiking trail and do the whole thing", xp:110, outsideHours:2},
+    {text:"Plan and execute a full prank on a friend that takes real setup", xp:105},
+    {text:"Spend a full day saying yes to everything anyone asks you to do", xp:115},
+    {text:"Get a stranger to believe a completely false but harmless fact about your town", xp:105, social:true, chaos:true},
+    {text:"Walk into a store with a friend and pretend you don't know each other, then cause a scene of recognition mid-aisle", xp:110, social:true, chaos:true},
+    {text:"Walk into a store with a friend where one of you speaks only in a foreign language and the other 'translates' (incorrectly)", xp:110, social:true, chaos:true},
+    {text:"Walk into a fast food place with a friend and have one of you order for both in a different language while the other translates everything wrong", xp:110, social:true, chaos:true},
+    {text:"Ask a stranger to watch your 'stuff' (one completely random and confusing item) while you 'run inside' and come back 10 minutes later", xp:105, social:true, chaos:true},
+    {text:"Show up somewhere with a briefcase containing only a sandwich", xp:95, chaos:true},
+    {text:"Walk into any business and ask to speak to whoever's in charge, then just tell them they're doing a great job and leave", xp:100, social:true, chaos:true},
+    {text:"Perform something in front of at least 10 people you don't know", xp:120, social:true},
+    {text:"Convince a group of strangers that you and your friend are twins", xp:110, social:true, chaos:true},
+  ],
+  legendary: [
+    {text:"Get a stranger to share a meal or snack with you", xp:175, social:true},
+    {text:"Get a stranger's number (in person, no apps, no excuses)", xp:250, social:true},
+    {text:"Get a stranger to genuinely hug you", xp:200, social:true},
+    {text:"Get someone you've never met to invite you to something", xp:225, social:true},
+    {text:"Ask a stranger to pretend to be your parent for 30 seconds for absolutely no explained reason", xp:175, social:true, chaos:true},
+    {text:"Wear a chef's hat to a fast food restaurant to order food", xp:150, chaos:true},
+    {text:"Set up a lemonade stand but only sell one extremely specific and unusual item", xp:200, chaos:true, outsideHours:1},
+    {text:"Get a stranger to introduce you to someone else they know", xp:225, social:true},
+    {text:"Get a stranger to believe you're a local celebrity of some kind without ever directly saying it", xp:250, social:true, chaos:true},
+    {text:"Walk into a fast food place with a friend where one of you acts as the other's assistant/manager", xp:150, social:true, chaos:true},
+    {text:"Go to a furniture store with a friend and spend at least 30 minutes acting like you're genuinely moving in", xp:175, social:true, chaos:true},
+    {text:"Walk into any store with a clipboard and tell them you're doing a 'routine check' without specifying what kind", xp:175, clipboard:true, chaos:true},
+    {text:"Have a friend narrate everything you do in public like a sports commentator at full volume", xp:200, chaos:true},
+    {text:"Walk through a store with a friend where one of you is blindfolded and the other gives completely unhelpful directions", xp:175, chaos:true},
+    {text:"Have a friend introduce you to strangers as someone extremely impressive with a completely fake resume", xp:225, social:true, chaos:true},
+    {text:"Walk into any public place with a friend and immediately start a fake argument that sounds real, resolve it in 60 seconds, and act like nothing happened", xp:200, social:true, chaos:true},
+    {text:"Go somewhere public and act as though you are a time traveler experiencing everything for the first time", xp:250, chaos:true},
+    {text:"Walk up to a stranger and hand them a sealed envelope, tell them it's 'very important' and walk away", xp:275, social:true, chaos:true},
+    {text:"Get a stranger to hold something for you, walk away, and come back 10 minutes later to retrieve it and thank them", xp:200, social:true},
+    {text:"Walk up to a stranger and say 'I've heard a lot about you' and see how they respond", xp:175, social:true, chaos:true},
+    {text:"Get into a country club, hotel pool, or any members-only situation purely through confidence", xp:315, social:true, chaos:true},
+    {text:"Walk into a backstage or employees-only area of somewhere mundane purely by acting like you belong there", xp:300, chaos:true},
+    {text:"Get a free meal, drink, or item purely through charm and a compelling story", xp:300, social:true, charm:true},
+    {text:"Walk into any establishment and negotiate something that isn't normally negotiable", xp:275, social:true},
+    {text:"Get into the movie theater using the two man one trenchcoat method", xp:315, chaos:true, trenchcoat:true},
+    {text:"Ski down a hill using shoes frozen in blocks of ice", xp:300, outsideHours:1},
+  ],
+};
+
+// ============================================================
+// SLOT SYSTEM
+// ============================================================
+const SLOT_POOLS = [
+  [{rarity:'common', weight:1}],
+  [{rarity:'common', weight:0.80}, {rarity:'rare', weight:0.20}],
+  [{rarity:'common', weight:0.55}, {rarity:'rare', weight:0.45}],
+  [{rarity:'common', weight:0.25}, {rarity:'rare', weight:0.75}],
+  [{rarity:'rare', weight:0.80}, {rarity:'epic', weight:0.20}],
+  [{rarity:'rare', weight:0.55}, {rarity:'epic', weight:0.35}, {rarity:'legendary', weight:0.10}],
+  [{rarity:'rare', weight:0.30}, {rarity:'epic', weight:0.45}, {rarity:'legendary', weight:0.25}],
+];
+
+const BONUS_POOL = [
+  {rarity:'common', weight:0.10},
+  {rarity:'rare',   weight:0.40},
+  {rarity:'epic',   weight:0.35},
+  {rarity:'legendary', weight:0.15},
+];
+
+// ============================================================
+// LEVEL THRESHOLDS — new XP curve
+// Level 1→2: 150 XP, L2→3: 350, L3→4: 650, L4→5: 1100, L5→6: 1800
+// L6→7: 2800, L7→8: 4200, L8→9: 6500, L9→10: 10000
+// ============================================================
+const LEVELS = [
+  {level:1,  min:0,     max:150,   title:"Wanderer"},
+  {level:2,  min:150,   max:500,   title:"Scout"},
+  {level:3,  min:500,   max:1150,  title:"Adventurer"},
+  {level:4,  min:1150,  max:2250,  title:"Explorer"},
+  {level:5,  min:2250,  max:4050,  title:"Raider"},
+  {level:6,  min:4050,  max:6850,  title:"Hunter"},
+  {level:7,  min:6850,  max:11050, title:"Champion"},
+  {level:8,  min:11050, max:17550, title:"Legend"},
+  {level:9,  min:17550, max:27550, title:"Mythic"},
+  {level:10, min:27550, max:Infinity, title:"Sidequest God"},
+];
+
+// ============================================================
+// STREAK MULTIPLIER
+// ============================================================
+function getStreakMultiplier(streak) {
+  if (streak >= 30) return 1.5;
+  if (streak >= 21) return 1.4;
+  if (streak >= 14) return 1.3;
+  if (streak >=  7) return 1.2;
+  if (streak >=  3) return 1.1;
+  return 1.0;
+}
+
+// ============================================================
+// BADGE DEFINITIONS
+// ============================================================
+const BADGE_DEFS = [
+  // Milestone
+  {id:'first_quest',     cat:'Milestone', icon:'⚔️',  name:'First Quest',       desc:'Complete your first ever quest.',                         secret:false, check: s => s.totalCompleted >= 1},
+  {id:'century',         cat:'Milestone', icon:'💯',  name:'Century',           desc:'Complete 100 total quests.',                              secret:false, check: s => s.totalCompleted >= 100},
+  {id:'veteran',         cat:'Milestone', icon:'🎖️',  name:'Veteran',           desc:'Complete 365 total quests.',                              secret:false, check: s => s.totalCompleted >= 365},
+  {id:'first_legendary', cat:'Milestone', icon:'⚡',  name:'First Legendary',   desc:'Complete your first Legendary quest.',                     secret:false, check: s => s.rarityCount.legendary >= 1},
+  {id:'perfect_day',     cat:'Milestone', icon:'💎',  name:'Perfect Day',       desc:'Complete all 7 quests + the bonus quest in one day.',      secret:false, check: s => s.perfectDays >= 1},
+  {id:'perfect_week',    cat:'Milestone', icon:'👑',  name:'Perfect Week',      desc:'Achieve a perfect day 7 days in a row.',                  secret:false, check: s => (s.perfectWeeks||0) >= 1},
+  // Streak
+  {id:'on_a_roll',       cat:'Streak',    icon:'🔥',  name:'On A Roll',         desc:'Reach a 3-day streak.',                                   secret:false, check: s => s.bestStreak >= 3},
+  {id:'locked_in',       cat:'Streak',    icon:'🔒',  name:'Locked In',         desc:'Reach a 7-day streak.',                                   secret:false, check: s => s.bestStreak >= 7},
+  {id:'unstoppable',     cat:'Streak',    icon:'🌊',  name:'Unstoppable',       desc:'Reach a 30-day streak.',                                  secret:false, check: s => s.bestStreak >= 30},
+  {id:'streak_breaker',  cat:'Streak',    icon:'💀',  name:'Streak Breaker',    desc:'You broke a streak of 7 or more. Rip.',                   secret:true,  check: s => !!s.brokeStreak7},
+  // Rarity
+  {id:'high_roller',     cat:'Rarity',    icon:'🎲',  name:'High Roller',       desc:'Complete 10 Epic quests.',                                secret:false, check: s => s.rarityCount.epic >= 10},
+  {id:'elite',           cat:'Rarity',    icon:'💫',  name:'Elite',             desc:'Complete 5 Legendary quests.',                            secret:false, check: s => s.rarityCount.legendary >= 5},
+  {id:'full_spectrum',   cat:'Rarity',    icon:'🌈',  name:'Full Spectrum',     desc:'Complete at least one quest of every rarity.',            secret:false, check: s => s.rarityCount.common>=1 && s.rarityCount.rare>=1 && s.rarityCount.epic>=1 && s.rarityCount.legendary>=1},
+  // Behavior
+  {id:'social_butterfly',cat:'Behavior',  icon:'🦋',  name:'Social Butterfly',  desc:'Complete 20 quests involving strangers.',                 secret:false, check: s => (s.socialCount||0) >= 20},
+  {id:'outside_kid',     cat:'Behavior',  icon:'🌳',  name:'Outside Kid',       desc:'Spend 100 hours outside across all quests.',              secret:false, check: s => (s.outsideMinutes||0) >= 6000},
+  {id:'menace',          cat:'Behavior',  icon:'😈',  name:'Menace',            desc:'Complete 10 public chaos quests.',                        secret:false, check: s => (s.chaosCount||0) >= 10},
+  {id:'the_professional',cat:'Behavior',  icon:'📋',  name:'The Professional',  desc:'Complete any quest involving a clipboard or fake badge.',  secret:false, check: s => (s.clipboardCount||0) >= 1},
+  {id:'charming',        cat:'Behavior',  icon:'😏',  name:'Charming',          desc:'Get a free item through charm and a compelling story.',   secret:false, check: s => !!s.earnedCharm},
+  {id:'two_man',         cat:'Behavior',  icon:'🧥',  name:'Two Man One Trenchcoat', desc:'You absolute legend.',                              secret:true,  check: s => !!s.earnedTrenchcoat},
+  {id:'overachiever',    cat:'Behavior',  icon:'🏆',  name:'Overachiever',      desc:'Complete the bonus quest 7 days in a row.',               secret:false, check: s => (s.bonusStreak||0) >= 7},
+  // Meta
+  {id:'speed_runner',    cat:'Meta',      icon:'⚡',  name:'Speed Runner',      desc:'Complete all 7 quests before noon.',                      secret:true,  check: s => !!s.completedBeforeNoon},
+  {id:'completionist',   cat:'Meta',      icon:'🌟',  name:'???',               desc:'Earn every single badge.',                                secret:true,  check: s => {
+    const others = BADGE_DEFS.filter(b => b.id !== 'completionist');
+    return others.every(b => (s.earnedBadges||[]).includes(b.id));
+  }},
+];
+
+// ============================================================
+// SEEDED RNG
+// ============================================================
+function seededRandom(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+}
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function dateSeed(dateKey) {
+  return dateKey.split('-').map(Number).reduce((acc, n) => acc * 1000 + n, 0);
+}
+
+function pickFromPool(pool, rand) {
+  const roll = rand();
+  let cum = 0;
+  for (const entry of pool) {
+    cum += entry.weight;
+    if (roll < cum) return entry.rarity;
+  }
+  return pool[pool.length - 1].rarity;
+}
+
+function generateDailyQuests(dateKey) {
+  const rand = seededRandom(dateSeed(dateKey));
+  const used = {common:[], rare:[], epic:[], legendary:[]};
+
+  function pick(rarity) {
+    const bank = QUEST_BANK[rarity];
+    let idx, attempts = 0;
+    do {
+      idx = Math.floor(rand() * bank.length);
+      attempts++;
+    } while (used[rarity].includes(idx) && attempts < 200);
+    used[rarity].push(idx);
+    return {...bank[idx], rarity};
+  }
+
+  const quests = SLOT_POOLS.map((pool, i) => {
+    const rarity = pickFromPool(pool, rand);
+    const q = pick(rarity);
+    q.id = `${dateKey}-slot${i}-${rarity}-${used[rarity][used[rarity].length-1]}`;
+    return q;
+  });
+
+  const luckySlot = Math.floor(rand() * 7);
+  quests[luckySlot].lucky = true;
+  quests[luckySlot].baseXp = quests[luckySlot].xp;
+  quests[luckySlot].xp = quests[luckySlot].xp * 2;
+
+  const streakSlot = (luckySlot + 1 + Math.floor(rand() * 6)) % 7;
+  quests[streakSlot].streakBoost = true;
+
+  const bonusRarity = pickFromPool(BONUS_POOL, rand);
+  const bonusQ = pick(bonusRarity);
+  bonusQ.id = `${dateKey}-bonus-${bonusRarity}-${used[bonusRarity][used[bonusRarity].length-1]}`;
+  bonusQ.bonus = true;
+  bonusQ.baseXp = bonusQ.xp;
+  bonusQ.xp = bonusQ.xp * 2;
+
+  return {quests, bonusQuest: bonusQ, luckySlot, streakSlot};
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  totalXp: 0,
+  completedToday: [],
+  history: [],
+  streak: 0,
+  bestStreak: 0,
+  lastPlayedDate: null,
+  totalCompleted: 0,
+  rarityCount: {common:0, rare:0, epic:0, legendary:0, mythic:0, bonus:0},
+  perfectDays: 0,
+  perfectWeeks: 0,
+  consecutivePerfectDays: 0,
+  lastPerfectDate: null,
+  earnedBadges: [],
+  socialCount: 0,
+  outsideMinutes: 0,
+  chaosCount: 0,
+  clipboardCount: 0,
+  earnedCharm: false,
+  earnedTrenchcoat: false,
+  bonusStreak: 0,
+  bonusLastDate: null,
+  brokeStreak7: false,
+  completedBeforeNoon: false,
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('sidequest_v3');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = {...state, ...parsed};
+      // ensure rarityCount has all keys
+      if (!state.rarityCount) state.rarityCount = {common:0, rare:0, epic:0, legendary:0, mythic:0, bonus:0};
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem('sidequest_v3', JSON.stringify(state));
+}
+
+let todayKey, todayQuests, bonusQuest, luckySlot, streakSlot;
+
+function initDay() {
+  todayKey = getTodayKey();
+  const gen = generateDailyQuests(todayKey);
+  todayQuests = gen.quests;
+  bonusQuest  = gen.bonusQuest;
+  luckySlot   = gen.luckySlot;
+  streakSlot  = gen.streakSlot;
+
+  if (state.lastPlayedDate && state.lastPlayedDate !== todayKey) {
+    const last = new Date(state.lastPlayedDate);
+    const now  = new Date(todayKey);
+    const diff = (now - last) / (1000 * 60 * 60 * 24);
+    if (diff > 1) {
+      if (state.streak >= 7) state.brokeStreak7 = true;
+      state.streak = 0;
+      state.consecutivePerfectDays = 0;
+    }
+  }
+
+  if (state.lastPlayedDate !== todayKey) {
+    state.lastPlayedDate = todayKey;
+    state.completedToday = [];
+    saveState();
+  }
+}
+
+// ============================================================
+// LEVEL UTILS
+// ============================================================
+function getLevel(xp) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].min) return LEVELS[i];
+  }
+  return LEVELS[0];
+}
+
+function updateXpDisplay() {
+  const lv = getLevel(state.totalXp);
+  const xpInLevel = state.totalXp - lv.min;
+  const xpNeeded  = lv.max === Infinity ? 999 : lv.max - lv.min;
+  const pct = lv.max === Infinity ? 100 : Math.min(100, (xpInLevel / xpNeeded) * 100);
+
+  document.getElementById('xp-display').innerHTML = `${state.totalXp.toLocaleString()} <span>XP</span>`;
+  document.getElementById('level-display').textContent = `LEVEL ${lv.level} — ${lv.title.toUpperCase()}`;
+  document.getElementById('level-next').textContent = lv.max === Infinity
+    ? 'MAX LEVEL'
+    : `${(lv.max - state.totalXp).toLocaleString()} XP to Level ${lv.level + 1}`;
+  document.getElementById('xp-bar').style.width = pct + '%';
+
+  const mult = getStreakMultiplier(state.streak);
+  const multRow = document.getElementById('multiplier-row');
+  const multPip = document.getElementById('multiplier-pip');
+  if (mult > 1.0) {
+    multRow.style.display = 'flex';
+    multPip.textContent = `🔥 ${mult.toFixed(1)}× STREAK MULTIPLIER`;
+  } else {
+    multRow.style.display = 'none';
+  }
+
+  document.getElementById('stat-xp').textContent    = state.totalXp.toLocaleString();
+  document.getElementById('stat-level').textContent = lv.level;
+  document.getElementById('stat-streak').textContent = state.bestStreak;
+  document.getElementById('stat-days').textContent  = state.history.length + 1;
+  document.getElementById('stat-total').textContent = state.totalCompleted;
+  document.getElementById('stat-perfect').textContent = state.perfectDays;
+}
+
+function updateMetaRow() {
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  document.getElementById('date-display').textContent = days[new Date().getDay()];
+  document.getElementById('streak-display').textContent = `${state.streak}🔥`;
+  const mainDone = state.completedToday.filter(id => !id.includes('-bonus-')).length;
+  document.getElementById('done-display').textContent = `${mainDone}/7`;
+  document.getElementById('quests-count').textContent = `${mainDone} / 7`;
+}
+
+function allMainDone() {
+  return todayQuests.every(q => state.completedToday.includes(q.id));
+}
+
+// ============================================================
+// RENDER QUESTS
+// ============================================================
+function buildQuestCard(quest) {
+  const done = state.completedToday.includes(quest.id);
+  const rarityClass = quest.bonus ? 'bonus' : quest.rarity;
+  const isLucky = quest.lucky && !done;
+  const mult = getStreakMultiplier(state.streak);
+  const showStreakBoost = quest.streakBoost && mult > 1.0 && !quest.bonus;
+
+  let xpLabel;
+  if (quest.lucky && !done) {
+    xpLabel = `+${quest.baseXp}? XP`;
+  } else if (quest.bonus) {
+    xpLabel = done ? `+${quest.xp} XP` : '??? XP';
+  } else {
+    xpLabel = `+${quest.xp} XP`;
+  }
+
+  const div = document.createElement('div');
+  let cardClass = `quest-card ${rarityClass}`;
+  if (done) cardClass += ' completed';
+  if (isLucky) cardClass += ' lucky';
+  if (showStreakBoost && !done) cardClass += ' streak-boosted';
+  div.className = cardClass;
+  div.dataset.id = quest.id;
+
+  const luckyTagHtml = isLucky ? `<span class="lucky-tag">🍀 LUCKY</span>` : '';
+  const streakTagHtml = showStreakBoost && !done ? `<span class="streak-tag">🔥 ${mult.toFixed(1)}×</span>` : '';
+
+  div.innerHTML = `
+    <div class="quest-check"><span class="checkmark">✓</span></div>
+    <div class="quest-body">
+      <div class="quest-rarity-row">
+        <span class="rarity-tag">${quest.bonus ? '2× BONUS' : quest.rarity.toUpperCase()}</span>
+        ${luckyTagHtml}${streakTagHtml}
+        <span class="xp-badge">${xpLabel}</span>
+      </div>
+      <div class="quest-text">${quest.text}</div>
+    </div>
+  `;
+
+  div.addEventListener('click', () => completeQuest(quest, div));
+  return div;
+}
+
+function renderQuests() {
+  const list = document.getElementById('quests-list');
+  list.innerHTML = '';
+  todayQuests.forEach(q => list.appendChild(buildQuestCard(q)));
+
+  const bonusList = document.getElementById('bonus-list');
+  bonusList.innerHTML = '';
+  bonusList.appendChild(buildQuestCard(bonusQuest));
+
+  const unlocked = allMainDone();
+  bonusList.style.display = unlocked ? 'flex' : 'none';
+  bonusList.style.flexDirection = 'column';
+  document.getElementById('bonus-header').style.display = unlocked ? 'none' : 'flex';
+  document.getElementById('completion-banner').classList.toggle('show', unlocked);
+  document.getElementById('bonus-locked-label').textContent = unlocked ? 'UNLOCKED!' : 'Complete all 7 to unlock';
+  document.getElementById('bonus-icon').textContent = unlocked ? '⚡' : '🔒';
+
+  const banner = document.getElementById('streak-bonus-banner');
+  const mult = getStreakMultiplier(state.streak);
+  if (mult > 1.0) {
+    banner.classList.add('show');
+    document.getElementById('streak-bonus-title').textContent = `${state.streak}-DAY STREAK — ${mult.toFixed(1)}× MULTIPLIER`;
+    document.getElementById('streak-bonus-sub').textContent = `All XP earned today is multiplied by ${mult.toFixed(1)}×`;
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ============================================================
+// COMPLETE QUEST
+// ============================================================
+let pendingLuckyXp = 0;
+
+function completeQuest(quest, el) {
+  if (state.completedToday.includes(quest.id)) return;
+  if (quest.bonus && !allMainDone()) return;
+
+  const prevLevel = getLevel(state.totalXp).level;
+
+  // Apply streak multiplier to ALL XP
+  const mult = getStreakMultiplier(state.streak);
+  let xpEarned = Math.round(quest.xp * mult);
+
+  state.completedToday.push(quest.id);
+  state.totalXp += xpEarned;
+  state.totalCompleted++;
+  state.rarityCount[quest.bonus ? 'bonus' : quest.rarity]++;
+
+  // Behavior tracking
+  if (quest.social)     state.socialCount    = (state.socialCount    || 0) + 1;
+  if (quest.chaos)      state.chaosCount     = (state.chaosCount     || 0) + 1;
+  if (quest.clipboard)  state.clipboardCount = (state.clipboardCount || 0) + 1;
+  if (quest.charm)      state.earnedCharm    = true;
+  if (quest.trenchcoat) state.earnedTrenchcoat = true;
+  if (quest.outsideHours) {
+    state.outsideMinutes = (state.outsideMinutes || 0) + Math.round(quest.outsideHours * 60);
+  }
+
+  // Streak: increment on first quest of the day
+  if (state.completedToday.length === 1) {
+    state.streak = (state.streak || 0) + 1;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+  }
+
+  // Bonus quest streak
+  if (quest.bonus) {
+    if (state.bonusLastDate) {
+      const last = new Date(state.bonusLastDate);
+      const now  = new Date(todayKey);
+      const diff = (now - last) / (1000*60*60*24);
+      state.bonusStreak = diff <= 1.5 ? (state.bonusStreak || 0) + 1 : 1;
+    } else {
+      state.bonusStreak = 1;
+    }
+    state.bonusLastDate = todayKey;
+  }
+
+  // Perfect day: all 7 main + bonus
+  const mainDoneAfter = state.completedToday.filter(id => !id.includes('-bonus-')).length;
+  const bonusDone = state.completedToday.includes(bonusQuest?.id);
+
+  if (mainDoneAfter === 7 && bonusDone) {
+    state.perfectDays++;
+    if (state.lastPerfectDate) {
+      const last = new Date(state.lastPerfectDate);
+      const now  = new Date(todayKey);
+      const diff = (now - last) / (1000*60*60*24);
+      if (diff <= 1.5) {
+        state.consecutivePerfectDays = (state.consecutivePerfectDays || 1) + 1;
+        if (state.consecutivePerfectDays >= 7) {
+          state.perfectWeeks = (state.perfectWeeks || 0) + 1;
+        }
+      } else {
+        state.consecutivePerfectDays = 1;
+      }
+    } else {
+      state.consecutivePerfectDays = 1;
+    }
+    state.lastPerfectDate = todayKey;
+  }
+
+  // Speed runner
+  if (mainDoneAfter === 7 && new Date().getHours() < 12) {
+    state.completedBeforeNoon = true;
+  }
+
+  saveState();
+
+  el.classList.add('flash-anim', 'completed');
+  setTimeout(() => el.classList.remove('flash-anim'), 500);
+
+  showXpPopup(xpEarned, el);
+  updateXpDisplay();
+  updateMetaRow();
+  renderQuests();
+
+  const newLevel = getLevel(state.totalXp).level;
+  if (newLevel > prevLevel) {
+    setTimeout(() => showLevelUp(newLevel), 600);
+  }
+
+  if (quest.lucky) {
+    pendingLuckyXp = xpEarned;
+    setTimeout(() => showLuckyReveal(xpEarned, quest.baseXp), 1000);
+  }
+
+  setTimeout(() => checkAndAwardBadges(), 800);
+}
+
+// ============================================================
+// BADGE SYSTEM
+// ============================================================
+let badgeQueue = [];
+let badgeShowing = false;
+
+function checkAndAwardBadges() {
+  const newBadges = [];
+  const earned = state.earnedBadges || [];
+  for (const def of BADGE_DEFS) {
+    if (!earned.includes(def.id)) {
+      try {
+        if (def.check(state)) {
+          state.earnedBadges = [...(state.earnedBadges || []), def.id];
+          newBadges.push(def);
+        }
+      } catch(e) {}
+    }
+  }
+  if (newBadges.length > 0) {
+    saveState();
+    badgeQueue.push(...newBadges);
+    if (!badgeShowing) showNextBadge();
+  }
+}
+
+function showNextBadge() {
+  if (badgeQueue.length === 0) { badgeShowing = false; return; }
+  badgeShowing = true;
+  const badge = badgeQueue.shift();
+
+  const box = document.getElementById('badge-box');
+  box.className = badge.secret ? 'badge-box secret' : 'badge-box';
+
+  document.getElementById('badge-unlock-label').textContent = badge.secret ? '🔓 SECRET BADGE UNLOCKED' : 'Badge Unlocked!';
+  document.getElementById('badge-box').style.borderColor = badge.secret ? 'var(--mythic)' : 'var(--epic)';
+  document.getElementById('badge-box').style.boxShadow = badge.secret ? '0 0 60px #ff6b8a30' : '0 0 60px #c97ef730';
+
+  // Reset animation
+  const iconEl = document.getElementById('badge-icon-big');
+  iconEl.style.animation = 'none';
+  void iconEl.offsetWidth;
+  iconEl.style.animation = '';
+  iconEl.textContent = badge.icon;
+
+  document.getElementById('badge-name-big').textContent = badge.name.toUpperCase();
+  document.getElementById('badge-desc-big').textContent = badge.desc;
+
+  const okBtn = document.getElementById('badge-ok-btn');
+  okBtn.style.background = badge.secret ? 'var(--mythic)' : 'var(--epic)';
+
+  const queueEl = document.getElementById('badge-queue-count');
+  if (badgeQueue.length > 0) {
+    queueEl.style.display = 'block';
+    queueEl.textContent = `+${badgeQueue.length} more badge${badgeQueue.length > 1 ? 's' : ''} waiting...`;
+  } else {
+    queueEl.style.display = 'none';
+  }
+
+  // Force re-pop animation
+  box.style.animation = 'none';
+  void box.offsetWidth;
+  box.style.animation = '';
+
+  document.getElementById('badge-overlay').classList.add('show');
+
+  if (document.getElementById('page-badges').classList.contains('active')) renderBadges();
+}
+
+function advanceBadgeQueue() {
+  document.getElementById('badge-overlay').classList.remove('show');
+  setTimeout(() => {
+    if (badgeQueue.length > 0) showNextBadge();
+    else badgeShowing = false;
+  }, 350);
+}
+
+// ============================================================
+// BADGES PAGE
+// ============================================================
+function renderBadges() {
+  const earned = state.earnedBadges || [];
+  document.getElementById('badge-count-sub').textContent = `${earned.length} / ${BADGE_DEFS.length} earned`;
+
+  const cats = ['Milestone', 'Streak', 'Rarity', 'Behavior', 'Meta'];
+  const content = document.getElementById('badges-content');
+  content.innerHTML = '';
+
+  for (const cat of cats) {
+    const defs = BADGE_DEFS.filter(b => b.cat === cat);
+    const header = document.createElement('div');
+    header.className = 'badge-category-header';
+    header.textContent = cat.toUpperCase();
+    content.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'badges-grid';
+
+    for (const def of defs) {
+      const isEarned = earned.includes(def.id);
+      const isSecretLocked = def.secret && !isEarned;
+
+      const card = document.createElement('div');
+      if (isEarned) {
+        card.className = def.secret ? 'badge-card earned-secret' : 'badge-card earned';
+      } else {
+        card.className = 'badge-card locked';
+      }
+
+      if (isSecretLocked) {
+        card.innerHTML = `
+          <span class="badge-card-icon">🔒</span>
+          <div class="badge-card-name" style="color:var(--muted)">???</div>
+          <div class="badge-secret-hint">Secret Badge</div>
+        `;
+      } else {
+        card.innerHTML = `
+          ${isEarned ? '<span class="badge-earned-check">✓</span>' : ''}
+          <span class="badge-card-icon">${def.icon}</span>
+          <div class="badge-card-name">${def.name}</div>
+          <div class="badge-card-desc">${def.desc}</div>
+        `;
+      }
+      grid.appendChild(card);
+    }
+    content.appendChild(grid);
+  }
+}
+
+// ============================================================
+// XP POPUP
+// ============================================================
+function showXpPopup(xp, el) {
+  const popup = document.getElementById('xp-popup');
+  const rect = el.getBoundingClientRect();
+  popup.textContent = `+${xp} XP`;
+  popup.style.left = (rect.left + rect.width / 2 - 40) + 'px';
+  popup.style.top  = (rect.top + window.scrollY + 10) + 'px';
+  popup.classList.remove('animate');
+  void popup.offsetWidth;
+  popup.classList.add('animate');
+}
+
+// ============================================================
+// OVERLAYS
+// ============================================================
+function showLevelUp(level) {
+  const lv = LEVELS.find(l => l.level === level) || LEVELS[0];
+  document.getElementById('levelup-num').textContent   = level;
+  document.getElementById('levelup-title').textContent = lv.title.toUpperCase();
+  document.getElementById('levelup-overlay').classList.add('show');
+}
+
+function closeLevelUp() {
+  document.getElementById('levelup-overlay').classList.remove('show');
+}
+
+function showLuckyReveal(earned, base) {
+  document.getElementById('lucky-reveal-xp').textContent = `+${earned} XP`;
+  document.getElementById('lucky-reveal').classList.add('show');
+}
+
+function closeLuckyReveal() {
+  document.getElementById('lucky-reveal').classList.remove('show');
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function updateTimer() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  const msLeft = midnight - now;
+  const h = Math.floor(msLeft / 3600000);
+  const m = Math.floor((msLeft % 3600000) / 60000);
+  document.getElementById('timer-display').textContent = `${h}h ${m}m`;
+  document.getElementById('timer-fill').style.width = (msLeft / 86400000 * 100) + '%';
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  list.innerHTML = '';
+  const all = [...state.history].reverse();
+
+  if (all.length === 0) {
+    list.innerHTML = '<div class="empty-state">No history yet.<br>Complete quests to build your logbook.</div>';
+    return;
+  }
+
+  all.forEach(day => {
+    const div = document.createElement('div');
+    div.className = 'history-day';
+    const d = new Date(day.date);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dateStr = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    const colors = {common:'var(--common)',rare:'var(--rare)',epic:'var(--epic)',legendary:'var(--legendary)',mythic:'var(--mythic)',bonus:'var(--bonus)'};
+    const questsHtml = (day.quests||[]).map(q => `
+      <div class="history-quest-item">
+        <span>${q.text}</span>
+        <span class="history-quest-rarity" style="color:${colors[q.rarity]||'var(--muted)'}">${q.rarity.toUpperCase()}</span>
+      </div>`).join('') || '<div class="history-quest-item" style="color:var(--muted)">No quests completed</div>';
+    div.innerHTML = `
+      <div class="history-day-header">
+        <div class="history-day-date">${dateStr}</div>
+        <div class="history-day-xp">+${day.xpEarned} XP</div>
+      </div>${questsHtml}`;
+    list.appendChild(div);
+  });
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function renderStats() {
+  const breakdown = document.getElementById('rarity-breakdown');
+  const rarities = ['common','rare','epic','legendary','mythic','bonus'];
+  const colors = {common:'var(--common)',rare:'var(--rare)',epic:'var(--epic)',legendary:'var(--legendary)',mythic:'var(--mythic)',bonus:'var(--bonus)'};
+  const max = Math.max(1, ...Object.values(state.rarityCount));
+  breakdown.innerHTML = rarities.map(r => `
+    <div class="rarity-row-stat">
+      <div class="rarity-row-label" style="color:${colors[r]}">${r}</div>
+      <div class="rarity-bar-track">
+        <div class="rarity-bar-fill" style="background:${colors[r]};width:${(state.rarityCount[r]/max)*100}%"></div>
+      </div>
+      <div class="rarity-count">${state.rarityCount[r]}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'stats') { renderStats(); updateXpDisplay(); }
+  if (name === 'badges') renderBadges();
+}
+
+// ============================================================
+// RESET
+// ============================================================
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (confirm('Reset ALL data? This cannot be undone.')) {
+    localStorage.removeItem('sidequest_v3');
+    localStorage.removeItem('sidequest_v2');
+    location.reload();
+  }
+});
+
+// ============================================================
+// SAVE HISTORY
+// ============================================================
+function saveHistoryForToday() {
+  if (!todayQuests) return;
+  const existing = state.history.findIndex(h => h.date === todayKey);
+  const completed = [...todayQuests, bonusQuest]
+    .filter(q => state.completedToday.includes(q.id))
+    .map(q => ({text: q.text, rarity: q.bonus ? 'bonus' : q.rarity, xp: q.xp}));
+  const xpEarned = completed.reduce((s, q) => s + q.xp, 0);
+  const entry = {date: todayKey, quests: completed, xpEarned};
+  if (existing >= 0) state.history[existing] = entry;
+  else state.history.push(entry);
+  saveState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveHistoryForToday(); });
+window.addEventListener('beforeunload', saveHistoryForToday);
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+initDay();
+updateXpDisplay();
+updateMetaRow();
+renderQuests();
+updateTimer();
+setInterval(updateTimer, 1000);
+
+// On-load badge check
+setTimeout(() => checkAndAwardBadges(), 600);
+</script>
+</body>
+</html>
